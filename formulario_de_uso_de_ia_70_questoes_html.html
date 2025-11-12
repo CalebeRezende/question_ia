@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Formulário — Perfil de Uso de IA e Fontes Digitais (70 questões)</title>
+  <style>
+    :root {
+      --bg: #0f172a;          /* slate-900 */
+      --panel: #111827;       /* gray-900 */
+      --muted: #9ca3af;       /* gray-400 */
+      --text: #e5e7eb;        /* gray-200 */
+      --brand: #22d3ee;       /* cyan-400 */
+      --brand-2: #06b6d4;     /* cyan-500 */
+      --ok: #34d399;          /* emerald-400 */
+      --warn: #f59e0b;        /* amber-500 */
+      --err: #ef4444;         /* red-500 */
+      --card: #0b1220;        /* deep panel */
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", "Noto Sans", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1000px 600px at 10% -10%, #0b223f55 0%, transparent 60%),
+                  radial-gradient(1000px 600px at 90% 0%, #102a4355 0%, transparent 60%), var(--bg);
+      color: var(--text); line-height: 1.45;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 32px 20px 64px; }
+    header {
+      position: sticky; top: 0; z-index: 10; backdrop-filter: blur(6px);
+      background: linear-gradient(180deg, rgba(15,23,42,0.85), rgba(15,23,42,0.6));
+      border-bottom: 1px solid #1f2937; /* gray-800 */
+    }
+    .header-inner { display: flex; align-items: center; gap: 16px; max-width: 980px; margin: 0 auto; padding: 12px 20px; }
+    .badge { font-weight: 700; letter-spacing: .04em; color: var(--bg); background: linear-gradient(90deg, var(--brand), var(--brand-2)); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
+    .title { font-size: 18px; font-weight: 700; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .progress { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .bar { width: 200px; height: 8px; background: #1f2937; border-radius: 999px; overflow: hidden; }
+    .bar > div { height: 100%; width: 0%; background: linear-gradient(90deg, var(--brand), var(--ok)); transition: width .25s ease; }
+
+    form { margin-top: 28px; }
+    fieldset { border: 1px solid #1f2937; border-radius: 14px; padding: 18px 18px; margin: 20px 0; background: linear-gradient(180deg, rgba(17,24,39,0.7), rgba(17,24,39,0.6)); }
+    legend { padding: 0 10px; font-weight: 800; color: var(--brand); letter-spacing: .02em; }
+
+    .q { padding: 16px; border-radius: 12px; background: #0b1220; margin: 14px 0; border: 1px solid #0f1a2d; }
+    .q h3 { margin: 0 0 10px; font-size: 16px; font-weight: 700; }
+    .opt { display: grid; gap: 8px; }
+    .opt label { display: block; padding: 10px 12px; border: 1px solid #1f2937; border-radius: 10px; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+    .opt input { margin-right: 8px; accent-color: var(--brand-2); }
+    .opt label:hover { border-color: var(--brand-2); background: #0e1a2e; }
+
+    .actions { position: sticky; bottom: 0; display: flex; gap: 12px; padding: 12px; background: linear-gradient(0deg, rgba(11,18,32,0.95), rgba(11,18,32,0.6)); border-top: 1px solid #13223a; }
+    button { appearance: none; border: none; border-radius: 12px; padding: 12px 16px; font-weight: 700; cursor: pointer; }
+    .btn-primary { background: linear-gradient(90deg, var(--brand), var(--brand-2)); color: #04202a; }
+    .btn-secondary { background: #1f2937; color: var(--text); border: 1px solid #334155; }
+    .note { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+    .thanks { display: none; margin-top: 24px; padding: 18px; border: 1px solid #1f2937; border-radius: 14px; background: #0b1220; }
+    .downloads a { display: inline-block; margin-right: 10px; margin-top: 8px; color: #67e8f9; text-decoration: none; border-bottom: 1px dashed #67e8f9; }
+
+    /* Small helpers */
+    .two-col { columns: 2; column-gap: 16px; }
+    @media (max-width: 820px) {
+      .two-col { columns: 1; }
+      .bar { width: 140px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <span class="badge">PESQUISA</span>
+      <div class="title">Perfil de Uso de IA & Fontes Digitais</div>
+      <div class="progress" aria-live="polite">
+        <span class="muted" id="progress-text">0/70</span>
+        <div class="bar" aria-hidden="true"><div id="barfill"></div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="muted">Marque uma opção por pergunta. Os dados podem ser exportados como CSV/JSON ao final.</p>
+
+    <form id="survey" novalidate>
+
+      <!-- BLOCO 1 -->
+      <fieldset>
+        <legend>Bloco 1 — Perfil Geral</legend>
+        <div class="q"><h3>1. Idade</h3>
+          <div class="opt two-col">
+            <label><input type="radio" name="q1" value="Menos de 18" required>Menos de 18</label>
+            <label><input type="radio" name="q1" value="18–24">18–24</label>
+            <label><input type="radio" name="q1" value="25–34">25–34</label>
+            <label><input type="radio" name="q1" value="35 ou mais">35 ou mais</label>
+          </div>
+        </div>
+        <div class="q"><h3>2. Gênero</h3>
+          <div class="opt two-col">
+            <label><input type="radio" name="q2" value="Feminino" required>Feminino</label>
+            <label><input type="radio" name="q2" value="Masculino">Masculino</label>
+            <label><input type="radio" name="q2" value="Não binário">Não binário</label>
+            <label><input type="radio" name="q2" value="Prefiro não responder">Prefiro não responder</label>
+          </div>
+        </div>
+        <div class="q"><h3>3. Nível de ensino atual</h3>
+          <div class="opt two-col">
+            <label><input type="radio" name="q3" value="Ensino médio" required>Ensino médio</label>
+            <label><input type="radio" name="q3" value="Graduação">Graduação</label>
+            <label><input type="radio" name="q3" value="Pós-graduação">Pós-graduação</label>
+            <label><input type="radio" name="q3" value="Outro">Outro</label>
+          </div>
+        </div>
+        <div class="q"><h3>4. Curso ou área principal</h3>
+          <div class="opt two-col">
+            <label><input type="radio" name="q4" value="Humanas" required>Humanas</label>
+            <label><input type="radio" name="q4" value="Exatas">Exatas</label>
+            <label><input type="radio" name="q4" value="Biológicas">Biológicas</label>
+            <label><input type="radio" name="q4" value="Artes/Design">Artes/Design</label>
+            <label><input type="radio" name="q4" value="Educação">Educação</label>
+          </div>
+        </div>
+        <div class="q"><h3>5. Você estuda em</h3>
+          <div class="opt two-col">
+            <label><input type="radio" name="q5" value="Escola pública" required>Escola pública</label>
+            <label><input type="radio" name="q5" value="Escola privada">Escola privada</label>
+            <label><input type="radio" name="q5" value="Universidade pública">Universidade pública</label>
+            <label><input type="radio" name="q5" value="Universidade privada">Universidade privada</label>
+          </div>
+        </div>
+        <div class="q"><h3>6. Você trabalha atualmente?</h3>
+          <div class="opt two-col">
+            <label><input type="radio" name="q6" value="Sim, integral" required>Sim, integral</label>
+            <label><input type="radio" name="q6" value="Sim, meio período">Sim, meio período</label>
+            <label><input type="radio" name="q6" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>7. Dispositivo principal para estudar</h3>
+          <div class="opt two-col">
+            <label><input type="radio" name="q7" value="Celular" required>Celular</label>
+            <label><input type="radio" name="q7" value="Notebook">Notebook</label>
+            <label><input type="radio" name="q7" value="Computador de mesa">Computador de mesa</label>
+            <label><input type="radio" name="q7" value="Tablet">Tablet</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- BLOCO 2 -->
+      <fieldset>
+        <legend>Bloco 2 — Hábitos de Pesquisa e Fontes Digitais</legend>
+        <div class="q"><h3>8. Primeira fonte quando precisa pesquisar para os estudos</h3>
+          <div class="opt">
+            <label><input type="radio" name="q8" value="Google" required>Google</label>
+            <label><input type="radio" name="q8" value="TikTok">TikTok</label>
+            <label><input type="radio" name="q8" value="ChatGPT">ChatGPT</label>
+            <label><input type="radio" name="q8" value="YouTube">YouTube</label>
+            <label><input type="radio" name="q8" value="Wikipedia">Wikipedia</label>
+          </div>
+        </div>
+        <div class="q"><h3>9. Você considera o TikTok uma fonte de aprendizado?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q9" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q9" value="Às vezes">Às vezes</label>
+            <label><input type="radio" name="q9" value="Raramente">Raramente</label>
+            <label><input type="radio" name="q9" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>10. Tempo médio diário no TikTok</h3>
+          <div class="opt">
+            <label><input type="radio" name="q10" value="Menos de 30 min" required>Menos de 30 min</label>
+            <label><input type="radio" name="q10" value="30 min–1h">30 min–1h</label>
+            <label><input type="radio" name="q10" value="1–2h">1–2h</label>
+            <label><input type="radio" name="q10" value="Mais de 2h">Mais de 2h</label>
+          </div>
+        </div>
+        <div class="q"><h3>11. Em que momentos você usa o TikTok?</h3>
+          <div class="opt two-col">
+            <label><input type="radio" name="q11" value="Durante os estudos" required>Durante os estudos</label>
+            <label><input type="radio" name="q11" value="Antes de dormir">Antes de dormir</label>
+            <label><input type="radio" name="q11" value="Intervalos">Intervalos</label>
+            <label><input type="radio" name="q11" value="Quando precisa relaxar">Quando precisa relaxar</label>
+          </div>
+        </div>
+        <div class="q"><h3>12. Você segue perfis educativos no TikTok?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q12" value="Sim, vários" required>Sim, vários</label>
+            <label><input type="radio" name="q12" value="Sim, alguns">Sim, alguns</label>
+            <label><input type="radio" name="q12" value="Não, só entretenimento">Não, só entretenimento</label>
+          </div>
+        </div>
+        <div class="q"><h3>13. Tipo de conteúdo educativo que você vê no TikTok</h3>
+          <div class="opt two-col">
+            <label><input type="radio" name="q13" value="Dicas de estudo" required>Dicas de estudo</label>
+            <label><input type="radio" name="q13" value="História e curiosidades">História e curiosidades</label>
+            <label><input type="radio" name="q13" value="Tecnologia e IA">Tecnologia e IA</label>
+            <label><input type="radio" name="q13" value="Ciências">Ciências</label>
+            <label><input type="radio" name="q13" value="Nenhum">Nenhum</label>
+          </div>
+        </div>
+        <div class="q"><h3>14. Já pesquisou “como usar IA” no TikTok?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q14" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q14" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>15. Ao usar Google, costuma clicar nos primeiros resultados?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q15" value="Sempre" required>Sempre</label>
+            <label><input type="radio" name="q15" value="Às vezes">Às vezes</label>
+            <label><input type="radio" name="q15" value="Raramente">Raramente</label>
+            <label><input type="radio" name="q15" value="Nunca">Nunca</label>
+          </div>
+        </div>
+        <div class="q"><h3>16. Você lê artigos acadêmicos ou só resumos?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q16" value="Só resumos" required>Só resumos</label>
+            <label><input type="radio" name="q16" value="Leio parcialmente">Leio parcialmente</label>
+            <label><input type="radio" name="q16" value="Leio o artigo todo">Leio o artigo todo</label>
+          </div>
+        </div>
+        <div class="q"><h3>17. Tempo diário em pesquisa online para estudar</h3>
+          <div class="opt">
+            <label><input type="radio" name="q17" value="Menos de 30 min" required>Menos de 30 min</label>
+            <label><input type="radio" name="q17" value="30 min–1h">30 min–1h</label>
+            <label><input type="radio" name="q17" value="1–2h">1–2h</label>
+            <label><input type="radio" name="q17" value="Mais de 2h">Mais de 2h</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- BLOCO 3 -->
+      <fieldset>
+        <legend>Bloco 3 — Uso de Inteligência Artificial</legend>
+        <div class="q"><h3>18. Você já utilizou ferramentas de IA?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q18" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q18" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>19. Ferramenta de IA usada com mais frequência</h3>
+          <div class="opt">
+            <label><input type="radio" name="q19" value="ChatGPT" required>ChatGPT</label>
+            <label><input type="radio" name="q19" value="Copilot">Copilot</label>
+            <label><input type="radio" name="q19" value="Gemini">Gemini</label>
+            <label><input type="radio" name="q19" value="Outras">Outras</label>
+          </div>
+        </div>
+        <div class="q"><h3>20. Há quanto tempo usa IA?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q20" value="Menos de 3 meses" required>Menos de 3 meses</label>
+            <label><input type="radio" name="q20" value="3–6 meses">3–6 meses</label>
+            <label><input type="radio" name="q20" value="6–12 meses">6–12 meses</label>
+            <label><input type="radio" name="q20" value="Mais de 1 ano">Mais de 1 ano</label>
+          </div>
+        </div>
+        <div class="q"><h3>21. Frequência de uso de IA</h3>
+          <div class="opt">
+            <label><input type="radio" name="q21" value="Todos os dias" required>Todos os dias</label>
+            <label><input type="radio" name="q21" value="Algumas vezes por semana">Algumas vezes por semana</label>
+            <label><input type="radio" name="q21" value="Raramente">Raramente</label>
+          </div>
+        </div>
+        <div class="q"><h3>22. Finalidade principal do uso de IA</h3>
+          <div class="opt">
+            <label><input type="radio" name="q22" value="Estudo" required>Estudo</label>
+            <label><input type="radio" name="q22" value="Trabalho">Trabalho</label>
+            <label><input type="radio" name="q22" value="Curiosidade">Curiosidade</label>
+            <label><input type="radio" name="q22" value="Entretenimento">Entretenimento</label>
+          </div>
+        </div>
+        <div class="q"><h3>23. Já pediu para a IA fazer um trabalho acadêmico?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q23" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q23" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>24. Como formula suas perguntas para a IA?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q24" value="Pergunta direta" required>Pergunta direta</label>
+            <label><input type="radio" name="q24" value="Conversa">Como se fosse uma conversa</label>
+            <label><input type="radio" name="q24" value="Copia o enunciado">Copiando o enunciado</label>
+            <label><input type="radio" name="q24" value="Pede resumo ou texto">Peço para “resumir” ou “fazer o texto”</label>
+          </div>
+        </div>
+        <div class="q"><h3>25. Você revisa a resposta da IA antes de usar?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q25" value="Sempre" required>Sempre</label>
+            <label><input type="radio" name="q25" value="Às vezes">Às vezes</label>
+            <label><input type="radio" name="q25" value="Raramente">Raramente</label>
+            <label><input type="radio" name="q25" value="Nunca">Nunca</label>
+          </div>
+        </div>
+        <div class="q"><h3>26. Você entende o que é “prompt”?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q26" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q26" value="Mais ou menos">Mais ou menos</label>
+            <label><input type="radio" name="q26" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>27. Usa IA em mais de um idioma?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q27" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q27" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>28. IA ajuda a aprender melhor?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q28" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q28" value="Parcialmente">Parcialmente</label>
+            <label><input type="radio" name="q28" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>29. Já recebeu nota com ajuda da IA?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q29" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q29" value="Não">Não</label>
+            <label><input type="radio" name="q29" value="Não sei">Não sei</label>
+          </div>
+        </div>
+        <div class="q"><h3>30. Sente culpa ao usar IA em trabalhos?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q30" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q30" value="Não">Não</label>
+            <label><input type="radio" name="q30" value="Às vezes">Às vezes</label>
+          </div>
+        </div>
+        <div class="q"><h3>31. Usar IA é “cola”?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q31" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q31" value="Não">Não</label>
+            <label><input type="radio" name="q31" value="Depende">Depende do uso</label>
+          </div>
+        </div>
+        <div class="q"><h3>32. Já recebeu orientação ética sobre IA?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q32" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q32" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>33. Já usou IA em avaliações online?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q33" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q33" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>34. Principal motivação para usar IA</h3>
+          <div class="opt">
+            <label><input type="radio" name="q34" value="Agilidade" required>Agilidade</label>
+            <label><input type="radio" name="q34" value="Curiosidade">Curiosidade</label>
+            <label><input type="radio" name="q34" value="Falta de tempo">Falta de tempo</label>
+            <label><input type="radio" name="q34" value="Dificuldade com o conteúdo">Dificuldade com o conteúdo</label>
+          </div>
+        </div>
+        <div class="q"><h3>35. Confia totalmente nas respostas da IA?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q35" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q35" value="Parcialmente">Parcialmente</label>
+            <label><input type="radio" name="q35" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>36. Quando a IA erra, você percebe?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q36" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q36" value="Às vezes">Às vezes</label>
+            <label><input type="radio" name="q36" value="Não">Não</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- BLOCO 4 -->
+      <fieldset>
+        <legend>Bloco 4 — Estilo de Aprendizagem e Tecnologia</legend>
+        <div class="q"><h3>37. Você aprende melhor</h3>
+          <div class="opt two-col">
+            <label><input type="radio" name="q37" value="Lendo" required>Lendo</label>
+            <label><input type="radio" name="q37" value="Ouvindo">Ouvindo</label>
+            <label><input type="radio" name="q37" value="Assistindo vídeos">Assistindo vídeos</label>
+            <label><input type="radio" name="q37" value="Fazendo">Fazendo</label>
+          </div>
+        </div>
+        <div class="q"><h3>38. Sentimento principal ao usar IA</h3>
+          <div class="opt two-col">
+            <label><input type="radio" name="q38" value="Empolgação" required>Empolgação</label>
+            <label><input type="radio" name="q38" value="Medo">Medo</label>
+            <label><input type="radio" name="q38" value="Curiosidade">Curiosidade</label>
+            <label><input type="radio" name="q38" value="Desconfiança">Desconfiança</label>
+          </div>
+        </div>
+        <div class="q"><h3>39. Preferência: estudar com IA ou professores?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q39" value="Só professores" required>Só com professores</label>
+            <label><input type="radio" name="q39" value="Só IA">Só com IA</label>
+            <label><input type="radio" name="q39" value="Ambos">Com ambos</label>
+          </div>
+        </div>
+        <div class="q"><h3>40. Já comparou explicação da IA com a do professor?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q40" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q40" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>41. Usa IA para revisar textos?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q41" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q41" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>42. Usa IA para gerar imagens, vídeos ou apresentações?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q42" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q42" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>43. Já usou IA para aprender idiomas?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q43" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q43" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>44. IA substitui o esforço de estudar?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q44" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q44" value="Parcialmente">Parcialmente</label>
+            <label><input type="radio" name="q44" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>45. IA vai mudar a forma de aprender nas escolas?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q45" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q45" value="Não">Não</label>
+            <label><input type="radio" name="q45" value="Não sei">Não sei</label>
+          </div>
+        </div>
+        <div class="q"><h3>46. Já apresentou trabalho criado com ajuda da IA?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q46" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q46" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>47. Sabe diferenciar IA generativa e pesquisa tradicional?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q47" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q47" value="Mais ou menos">Mais ou menos</label>
+            <label><input type="radio" name="q47" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>48. Usa IA para planejar estudos?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q48" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q48" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>49. Já usou IA para resolver questões de prova?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q49" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q49" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>50. Já usou IA para criar códigos, planilhas ou gráficos?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q50" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q50" value="Não">Não</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- BLOCO 5 -->
+      <fieldset>
+        <legend>Bloco 5 — Tempo, Frequência e Contexto</legend>
+        <div class="q"><h3>51. Tempo total de uso de IA por semana</h3>
+          <div class="opt">
+            <label><input type="radio" name="q51" value="Menos de 1h" required>Menos de 1h</label>
+            <label><input type="radio" name="q51" value="1–3h">1–3h</label>
+            <label><input type="radio" name="q51" value="3–6h">3–6h</label>
+            <label><input type="radio" name="q51" value="Mais de 6h">Mais de 6h</label>
+          </div>
+        </div>
+        <div class="q"><h3>52. Onde você mais usa IA?</h3>
+          <div class="opt two-col">
+            <label><input type="radio" name="q52" value="Em casa" required>Em casa</label>
+            <label><input type="radio" name="q52" value="Na escola/faculdade">Na escola/faculdade</label>
+            <label><input type="radio" name="q52" value="No trabalho">No trabalho</label>
+            <label><input type="radio" name="q52" value="No transporte">No transporte</label>
+          </div>
+        </div>
+        <div class="q"><h3>53. Você compartilha resultados da IA com colegas?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q53" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q53" value="Às vezes">Às vezes</label>
+            <label><input type="radio" name="q53" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>54. Já ensinou alguém a usar IA?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q54" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q54" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>55. Você paga por alguma ferramenta de IA?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q55" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q55" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>56. Se não usa IA, por quê?</h3>
+          <div class="opt two-col">
+            <label><input type="radio" name="q56" value="Não sei usar" required>Não sei usar</label>
+            <label><input type="radio" name="q56" value="Falta interesse">Falta interesse</label>
+            <label><input type="radio" name="q56" value="Falta tempo">Falta tempo</label>
+            <label><input type="radio" name="q56" value="Falta acesso">Falta acesso</label>
+          </div>
+        </div>
+        <div class="q"><h3>57. IA ajuda a economizar tempo?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q57" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q57" value="Parcialmente">Parcialmente</label>
+            <label><input type="radio" name="q57" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>58. Usa IA para entretenimento?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q58" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q58" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>59. Preocupação com privacidade ao usar IA</h3>
+          <div class="opt">
+            <label><input type="radio" name="q59" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q59" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>60. Já leu termos de uso de alguma IA?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q60" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q60" value="Não">Não</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- BLOCO 6 -->
+      <fieldset>
+        <legend>Bloco 6 — Reflexão e Expectativas</legend>
+        <div class="q"><h3>61. Gostaria de ter aulas sobre IA na escola/faculdade?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q61" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q61" value="Não">Não</label>
+            <label><input type="radio" name="q61" value="Talvez">Talvez</label>
+          </div>
+        </div>
+        <div class="q"><h3>62. IA pode substituir professores?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q62" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q62" value="Não">Não</label>
+            <label><input type="radio" name="q62" value="Parcialmente">Parcialmente</label>
+          </div>
+        </div>
+        <div class="q"><h3>63. IA pode melhorar sua escrita?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q63" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q63" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>64. IA prejudica a criatividade?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q64" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q64" value="Não">Não</label>
+            <label><input type="radio" name="q64" value="Depende">Depende</label>
+          </div>
+        </div>
+        <div class="q"><h3>65. Confia mais em IA ou influenciador digital?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q65" value="IA" required>IA</label>
+            <label><input type="radio" name="q65" value="Influenciador">Influenciador</label>
+            <label><input type="radio" name="q65" value="Depende">Depende</label>
+          </div>
+        </div>
+        <div class="q"><h3>66. Usaria IA para terapia ou conselhos pessoais?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q66" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q66" value="Não">Não</label>
+            <label><input type="radio" name="q66" value="Talvez">Talvez</label>
+          </div>
+        </div>
+        <div class="q"><h3>67. IA pode mentir?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q67" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q67" value="Não">Não</label>
+            <label><input type="radio" name="q67" value="Não sei">Não sei</label>
+          </div>
+        </div>
+        <div class="q"><h3>68. IA te ajuda a pensar criticamente?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q68" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q68" value="Não">Não</label>
+            <label><input type="radio" name="q68" value="Às vezes">Às vezes</label>
+          </div>
+        </div>
+        <div class="q"><h3>69. Sente-se preparado(a) para usar IA de forma ética?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q69" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q69" value="Mais ou menos">Mais ou menos</label>
+            <label><input type="radio" name="q69" value="Não">Não</label>
+          </div>
+        </div>
+        <div class="q"><h3>70. Gostaria de aprender a criar suas próprias IAs?</h3>
+          <div class="opt">
+            <label><input type="radio" name="q70" value="Sim" required>Sim</label>
+            <label><input type="radio" name="q70" value="Não">Não</label>
+            <label><input type="radio" name="q70" value="Talvez">Talvez</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <button class="btn-secondary" type="button" id="btn-save">Exportar CSV</button>
+        <button class="btn-primary" type="submit">Enviar respostas</button>
+        <div class="note">O progresso atualiza conforme você marca as opções.</div>
+      </div>
+
+      <div class="thanks" id="thanks">
+        <strong>Obrigado! 🎉</strong>
+        <p>As respostas foram registradas localmente (neste navegador). Você pode baixar os dados como <em>CSV</em> ou <em>JSON</em> para análise.</p>
+        <div class="downloads" id="downloads"></div>
+      </div>
+
+    </form>
+  </div>
+
+  <script>
+    (function () {
+      const form = document.getElementById('survey');
+      const progressText = document.getElementById('progress-text');
+      const barFill = document.getElementById('barfill');
+      const thanks = document.getElementById('thanks');
+      const downloads = document.getElementById('downloads');
+      const btnSave = document.getElementById('btn-save');
+
+      const TOTAL = 70;
+
+      function countAnswered() {
+        let c = 0;
+        for (let i = 1; i <= TOTAL; i++) {
+          const name = 'q' + i;
+          const checked = form.querySelector(`input[name="${name}"]:checked`);
+          if (checked) c++;
+        }
+        return c;
+      }
+
+      function updateProgress() {
+        const done = countAnswered();
+        progressText.textContent = `${done}/${TOTAL}`;
+        barFill.style.width = `${(done / TOTAL) * 100}%`;
+      }
+
+      form.addEventListener('input', updateProgress, { passive: true });
+      updateProgress();
+
+      function serialize() {
+        const data = {};
+        for (let i = 1; i <= TOTAL; i++) {
+          const name = 'q' + i;
+          const checked = form.querySelector(`input[name="${name}"]:checked`);
+          data[name] = checked ? checked.value : '';
+        }
+        return data;
+      }
+
+      function toCSV(obj) {
+        const headers = Object.keys(obj);
+        const values = headers.map(k => '"' + (obj[k] ?? '').replaceAll('"', '""') + '"');
+        return headers.join(',') + '\n' + values.join(',') + '\n';
+      }
+
+      function download(filename, content, mime) {
+        const blob = new Blob([content], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename; a.textContent = filename;
+        downloads.appendChild(a);
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const data = serialize();
+        downloads.innerHTML = '';
+        download('respostas.json', JSON.stringify(data, null, 2), 'application/json;charset=utf-8');
+        download('respostas.csv', toCSV(data), 'text/csv;charset=utf-8');
+        thanks.style.display = 'block';
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      btnSave.addEventListener('click', function () {
+        const data = serialize();
+        downloads.innerHTML = '';
+        download('respostas.csv', toCSV(data), 'text/csv;charset=utf-8');
+        thanks.style.display = 'block';
+      });
+    })();
+  </script>
+</body>
+</html>
