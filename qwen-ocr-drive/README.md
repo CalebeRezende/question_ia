@@ -81,3 +81,51 @@ O link do arquivo salvo aparece na tela ao final do processo.
 
 `credentials.json` e `token.json` **não** devem ser commitados — já estão no
 `.gitignore`.
+
+## 6. Publicar no GitHub Pages (frontend) + Render/Railway (backend)
+
+O GitHub Pages só serve arquivos estáticos, então apenas o `index.html` pode
+rodar lá. O `backend.py` (Flask/Python) precisa de um host separado que
+execute processos Python, como [Render](https://render.com) ou
+[Railway](https://railway.app).
+
+### 6.1. Frontend no GitHub Pages
+
+Se o repositório já publica o GitHub Pages a partir da branch `main`, o
+`index.html` desta pasta fica disponível em:
+
+```
+https://caleberezende.github.io/question_ia/qwen-ocr-drive/
+```
+
+Na própria página, no campo **"Endereço do backend (Flask)"**, cole a URL
+pública do backend hospedado (passo seguinte). Esse valor é salvo no
+navegador (`localStorage`), então só precisa ser preenchido uma vez.
+
+### 6.2. Backend no Render (ou Railway)
+
+1. Gere `token.json` **localmente** primeiro: rode `python backend.py` na sua
+   máquina, autorize o Google Drive uma vez (abre o navegador) e confirme que
+   o arquivo `qwen-ocr-drive/token.json` foi criado.
+2. No Render, crie um novo **Web Service** apontando para este repositório.
+   Este diretório já inclui um `render.yaml` com a configuração (root
+   `qwen-ocr-drive`, build `pip install -r requirements.txt`, start
+   `gunicorn backend:app`). No Railway, aponte o root do projeto para
+   `qwen-ocr-drive` e defina o start command como `gunicorn backend:app`
+   (ou use o `Procfile` incluído).
+3. Configure as variáveis de ambiente do serviço:
+   - `DASHSCOPE_API_KEY` (opcional, para a análise por IA)
+   - `DASHSCOPE_BASE_URL` e `QWEN_MODEL` (se quiser mudar os padrões)
+   - `ALLOWED_ORIGINS` — origens que podem chamar a API, separadas por
+     vírgula. Já vem com
+     `https://caleberezende.github.io` configurado por padrão.
+   - `GOOGLE_TOKEN_JSON` — cole aqui o **conteúdo** do `token.json` gerado no
+     passo 1 (um host como Render não tem navegador para refazer o login
+     OAuth).
+4. Depois do deploy, copie a URL pública do serviço (ex.:
+   `https://qwen-ocr-drive-backend.onrender.com`) e cole no campo
+   "Endereço do backend" da página publicada no GitHub Pages.
+
+> No plano gratuito do Render o serviço "dorme" sem uso e demora alguns
+> segundos para responder na primeira chamada depois de um período inativo —
+> isso é esperado.

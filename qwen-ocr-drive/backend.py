@@ -1,4 +1,5 @@
 import io
+import json
 import os
 
 from dotenv import load_dotenv
@@ -14,7 +15,16 @@ from openai import OpenAI
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "ALLOWED_ORIGINS",
+        "http://localhost:5000,http://127.0.0.1:5000,https://caleberezende.github.io",
+    ).split(",")
+    if origin.strip()
+]
+CORS(app, origins=ALLOWED_ORIGINS)
 
 SCOPES = ["https://www.googleapis.com/auth/drive.file"]
 TOKEN_FILE = "token.json"
@@ -30,14 +40,31 @@ client_qwen = OpenAI(api_key=QWEN_API_KEY, base_url=QWEN_BASE_URL) if QWEN_API_K
 
 
 def get_drive_service():
-    """Autentica (via OAuth local) e retorna o serviço do Google Drive."""
+    """Autentica (via OAuth local, ou via variáveis de ambiente em produção)
+    e retorna o serviço do Google Drive.
+
+    Em um host sem navegador (Render/Railway), não é possível abrir a janela
+    de autorização. Nesses casos, gere `token.json` uma vez localmente
+    (rodando o backend na sua máquina) e cole o conteúdo do arquivo na
+    variável de ambiente `GOOGLE_TOKEN_JSON` do serviço hospedado.
+    """
     creds = None
-    if os.path.exists(TOKEN_FILE):
+
+    token_json_env = os.getenv("GOOGLE_TOKEN_JSON")
+    if token_json_env:
+        creds = Credentials.from_authorized_user_info(json.loads(token_json_env), SCOPES)
+    elif os.path.exists(TOKEN_FILE):
         creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
+        elif token_json_env:
+            raise RuntimeError(
+                "GOOGLE_TOKEN_JSON está definido mas o token expirou e não pôde "
+                "ser renovado. Gere um novo token.json localmente e atualize a "
+                "variável de ambiente."
+            )
         else:
             if not os.path.exists(CREDENTIALS_FILE):
                 raise RuntimeError(
@@ -48,8 +75,9 @@ def get_drive_service():
             flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
             creds = flow.run_local_server(port=0)
 
-        with open(TOKEN_FILE, "w") as token:
-            token.write(creds.to_json())
+        if not token_json_env:
+            with open(TOKEN_FILE, "w") as token:
+                token.write(creds.to_json())
 
     return build("drive", "v3", credentials=creds)
 
@@ -144,6 +172,7 @@ def processar():
 
 
 if __name__ == "__main__":
-    print("Servidor rodando em http://localhost:5000")
+    port = int(os.getenv("PORT", 5000))
+    print(f"Servidor rodando em http://localhost:{port}")
     print("Na primeira execução, uma janela do navegador abrirá para autorizar o Google Drive.")
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=port)

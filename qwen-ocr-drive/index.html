@@ -63,6 +63,16 @@
                     <input type="text" id="folderId" placeholder="ID da pasta...">
                 </div>
             </div>
+            <div>
+                <label>Endereço do backend (Flask)</label>
+                <input type="text" id="backendUrl" placeholder="http://localhost:5000">
+                <p style="font-size: 0.75rem; color: #64748b; margin: 0.4rem 0 0;">
+                    Rodando localmente, deixe em branco. Se publicou o backend no
+                    Render/Railway, cole aqui a URL pública (ex.:
+                    <code>https://seu-app.onrender.com</code>). O valor fica salvo
+                    neste navegador.
+                </p>
+            </div>
         </div>
     </div>
 
@@ -84,7 +94,17 @@
 </div>
 
 <script>
-    const API_URL = 'http://localhost:5000/processar';
+    const DEFAULT_BACKEND = 'http://localhost:5000';
+    const backendInput = document.getElementById('backendUrl');
+    backendInput.value = localStorage.getItem('backendUrl') || '';
+    backendInput.addEventListener('change', () => {
+        localStorage.setItem('backendUrl', backendInput.value.trim());
+    });
+
+    function getApiUrl() {
+        const base = (backendInput.value.trim() || DEFAULT_BACKEND).replace(/\/+$/, '');
+        return `${base}/processar`;
+    }
 
     function handleImage(event) {
         const file = event.target.files[0];
@@ -122,7 +142,7 @@
         document.getElementById('aiOutput').style.display = 'none';
 
         try {
-            const response = await fetch(API_URL, {
+            const response = await fetch(getApiUrl(), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
