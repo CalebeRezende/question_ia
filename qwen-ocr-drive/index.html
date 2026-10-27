@@ -44,12 +44,13 @@
 
     <div class="grid">
         <div>
-            <label>1. Subir imagem (opcional, só para referência visual)</label>
+            <label>1. Subir imagem para extrair o texto (OCR automático)</label>
             <div class="upload-box" onclick="document.getElementById('imgInput').click()">
                 <p>📷 Clique para selecionar a imagem</p>
                 <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="handleImage(event)">
                 <img id="imagePreview" alt="Preview">
             </div>
+            <p id="ocrStatus" style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;"></p>
         </div>
 
         <div>
@@ -101,9 +102,16 @@
         localStorage.setItem('backendUrl', backendInput.value.trim());
     });
 
+    function getBackendBase() {
+        return (backendInput.value.trim() || DEFAULT_BACKEND).replace(/\/+$/, '');
+    }
+
     function getApiUrl() {
-        const base = (backendInput.value.trim() || DEFAULT_BACKEND).replace(/\/+$/, '');
-        return `${base}/processar`;
+        return `${getBackendBase()}/processar`;
+    }
+
+    function setOcrStatus(msg) {
+        document.getElementById('ocrStatus').innerText = msg;
     }
 
     function handleImage(event) {
@@ -111,11 +119,36 @@
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = function (e) {
-            document.getElementById('imagePreview').src = e.target.result;
+        reader.onload = async function (e) {
+            const dataUrl = e.target.result;
+            document.getElementById('imagePreview').src = dataUrl;
             document.getElementById('imagePreview').style.display = 'block';
+            await extrairTextoDaImagem(dataUrl);
         };
         reader.readAsDataURL(file);
+    }
+
+    async function extrairTextoDaImagem(dataUrl) {
+        setOcrStatus('⏳ Extraindo texto da imagem...');
+        try {
+            const response = await fetch(`${getBackendBase()}/ocr`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imagem: dataUrl })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || 'Erro desconhecido ao extrair o texto');
+            }
+
+            document.getElementById('ocrText').value = result.texto;
+            setOcrStatus('✅ Texto extraído. Revise antes de salvar.');
+        } catch (error) {
+            console.error(error);
+            setOcrStatus(`❌ Falha ao extrair texto: ${error.message}. Cole o texto manualmente abaixo, se preferir.`);
+        }
     }
 
     function showStatus(msg, type) {

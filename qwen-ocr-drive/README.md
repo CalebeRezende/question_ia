@@ -8,9 +8,15 @@ O navegador (`index.html`) não roda Python nem acessa o Google Drive
 diretamente, então a ponte é feita por um servidor Flask local
 (`backend.py`), que:
 
-1. recebe o texto editado pelo navegador;
-2. (opcional) envia o texto para a API da Qwen para análise/formatação;
+1. recebe a imagem enviada pelo navegador e extrai o texto usando o modelo
+   de visão da Qwen (OCR automático);
+2. (opcional) envia o texto extraído para a API da Qwen novamente, para
+   análise/formatação;
 3. salva o texto final no Google Drive via OAuth 2.0.
+
+A extração automática (passo 1) exige `DASHSCOPE_API_KEY` configurada — sem
+ela, a imagem é apenas exibida como referência e o texto precisa ser colado
+manualmente.
 
 ## 1. Instalar dependências
 

@@ -12,6 +12,8 @@ services:
         value: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
       - key: QWEN_MODEL
         value: qwen-max-latest
+      - key: QWEN_VL_MODEL
+        value: qwen-vl-ocr
       - key: ALLOWED_ORIGINS
         value: https://caleberezende.github.io
       - key: GOOGLE_TOKEN_JSON

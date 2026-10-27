@@ -35,6 +35,7 @@ QWEN_BASE_URL = os.getenv(
     "DASHSCOPE_BASE_URL", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 )
 QWEN_MODEL = os.getenv("QWEN_MODEL", "qwen-max-latest")
+QWEN_VL_MODEL = os.getenv("QWEN_VL_MODEL", "qwen-vl-ocr")
 
 client_qwen = OpenAI(api_key=QWEN_API_KEY, base_url=QWEN_BASE_URL) if QWEN_API_KEY else None
 
@@ -100,9 +101,56 @@ def analisar_com_qwen(texto_editado):
     return mensagem.content, getattr(mensagem, "reasoning_content", None)
 
 
+def extrair_texto_da_imagem(imagem_data_url):
+    """Envia a imagem (data URL base64) para o modelo de visão da Qwen e
+    retorna o texto extraído."""
+    if client_qwen is None:
+        raise RuntimeError(
+            "DASHSCOPE_API_KEY não configurada no servidor. Configure a chave "
+            "para habilitar a extração automática de texto da imagem."
+        )
+
+    response = client_qwen.chat.completions.create(
+        model=QWEN_VL_MODEL,
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image_url", "image_url": {"url": imagem_data_url}},
+                    {
+                        "type": "text",
+                        "text": (
+                            "Extraia todo o texto visível nesta imagem, preservando "
+                            "quebras de linha e pontuação. Responda apenas com o "
+                            "texto extraído, sem comentários adicionais."
+                        ),
+                    },
+                ],
+            }
+        ],
+    )
+    return response.choices[0].message.content.strip()
+
+
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok", "qwen_configured": client_qwen is not None})
+
+
+@app.route("/ocr", methods=["POST"])
+def ocr():
+    data = request.get_json(silent=True) or {}
+    imagem_data_url = data.get("imagem")
+
+    if not imagem_data_url or not imagem_data_url.startswith("data:image"):
+        return jsonify({"success": False, "error": "Imagem inválida ou ausente."}), 400
+
+    try:
+        texto = extrair_texto_da_imagem(imagem_data_url)
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+    return jsonify({"success": True, "texto": texto})
 
 
 @app.route("/processar", methods=["POST"])
