@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Qwen + Google Drive</title>
+    <style>
+        :root { --primary: #2563eb; --success: #16a34a; --bg: #f8fafc; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1e293b; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        h1 { text-align: center; color: var(--primary); margin-bottom: 1.5rem; font-size: 1.5rem; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+
+        .upload-box { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; transition: 0.2s; background: #f1f5f9; }
+        .upload-box:hover { border-color: var(--primary); background: #e2e8f0; }
+        #imagePreview { max-width: 100%; max-height: 250px; margin-top: 1rem; border-radius: 4px; display: none; }
+
+        label { font-weight: 600; display: block; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        textarea, input[type="text"] { width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; box-sizing: border-box; }
+        textarea { height: 250px; resize: vertical; font-family: 'Courier New', monospace; font-size: 0.9rem; }
+
+        .config-row { display: flex; gap: 10px; margin-bottom: 1rem; }
+        .config-row > div { flex: 1; }
+
+        button { width: 100%; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 1rem; }
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        #status { margin-top: 1rem; padding: 1rem; border-radius: 6px; display: none; font-size: 0.9rem; }
+        .success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .loading { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+        .ai-output { margin-top: 1rem; padding: 1rem; background: #f1f5f9; border-radius: 6px; font-size: 0.85rem; display: none; }
+        .ai-output strong { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📄 Editor OCR &amp; Salvamento no Drive</h1>
+
+    <div class="grid">
+        <div>
+            <label>1. Subir imagem para extrair o texto (OCR automático)</label>
+            <div class="upload-box" onclick="document.getElementById('imgInput').click()">
+                <p>📷 Clique para selecionar a imagem</p>
+                <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="handleImage(event)">
+                <img id="imagePreview" alt="Preview">
+            </div>
+            <p id="ocrStatus" style="font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;"></p>
+        </div>
+
+        <div>
+            <div class="config-row">
+                <div>
+                    <label>Nome do arquivo</label>
+                    <input type="text" id="fileName" value="documento.txt">
+                </div>
+                <div>
+                    <label>ID da pasta no Drive (opcional)</label>
+                    <input type="text" id="folderId" placeholder="ID da pasta...">
+                </div>
+            </div>
+            <div>
+                <label>Endereço do backend (Flask)</label>
+                <input type="text" id="backendUrl" placeholder="http://localhost:5000">
+                <p style="font-size: 0.75rem; color: #64748b; margin: 0.4rem 0 0;">
+                    Rodando localmente, deixe em branco. Se publicou o backend no
+                    Render/Railway, cole aqui a URL pública (ex.:
+                    <code>https://seu-app.onrender.com</code>). O valor fica salvo
+                    neste navegador.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 1.5rem;">
+        <label>2. Editar texto extraído</label>
+        <textarea id="ocrText" placeholder="Cole ou digite aqui o texto extraído da imagem..."></textarea>
+    </div>
+
+    <button id="btnSave" onclick="salvarNoDrive()">🚀 Processar com IA e salvar no Google Drive</button>
+
+    <div id="status"></div>
+
+    <div id="aiOutput" class="ai-output">
+        <strong>🧠 Raciocínio da IA:</strong>
+        <p id="aiReasoning" style="margin: 0.5rem 0; color: #475569;"></p>
+        <strong>✅ Resposta final:</strong>
+        <p id="aiAnswer" style="margin: 0.5rem 0; color: #1e293b;"></p>
+    </div>
+</div>
+
+<script>
+    const DEFAULT_BACKEND = 'http://localhost:5000';
+    const backendInput = document.getElementById('backendUrl');
+    backendInput.value = localStorage.getItem('backendUrl') || '';
+    backendInput.addEventListener('change', () => {
+        localStorage.setItem('backendUrl', backendInput.value.trim());
+    });
+
+    function getBackendBase() {
+        return (backendInput.value.trim() || DEFAULT_BACKEND).replace(/\/+$/, '');
+    }
+
+    function getApiUrl() {
+        return `${getBackendBase()}/processar`;
+    }
+
+    function setOcrStatus(msg) {
+        document.getElementById('ocrStatus').innerText = msg;
+    }
+
+    function handleImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async function (e) {
+            const dataUrl = e.target.result;
+            document.getElementById('imagePreview').src = dataUrl;
+            document.getElementById('imagePreview').style.display = 'block';
+            await extrairTextoDaImagem(dataUrl);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function extrairTextoDaImagem(dataUrl) {
+        setOcrStatus('⏳ Extraindo texto da imagem...');
+        try {
+            const response = await fetch(`${getBackendBase()}/ocr`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imagem: dataUrl })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || 'Erro desconhecido ao extrair o texto');
+            }
+
+            document.getElementById('ocrText').value = result.texto;
+            setOcrStatus('✅ Texto extraído. Revise antes de salvar.');
+        } catch (error) {
+            console.error(error);
+            setOcrStatus(`❌ Falha ao extrair texto: ${error.message}. Cole o texto manualmente abaixo, se preferir.`);
+        }
+    }
+
+    function showStatus(msg, type) {
+        const el = document.getElementById('status');
+        el.innerHTML = msg;
+        el.className = type;
+        el.style.display = 'block';
+    }
+
+    async function salvarNoDrive() {
+        const btn = document.getElementById('btnSave');
+        const texto = document.getElementById('ocrText').value.trim();
+        const nome = document.getElementById('fileName').value.trim() || 'documento.txt';
+        const pasta = document.getElementById('folderId').value.trim();
+
+        if (!texto) {
+            showStatus('⚠️ Digite ou cole o texto extraído antes de salvar.', 'error');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = '⏳ Processando IA e enviando...';
+        showStatus('Conectando ao servidor Python...', 'loading');
+        document.getElementById('aiOutput').style.display = 'none';
+
+        try {
+            const response = await fetch(getApiUrl(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    textoCorrigido: texto,
+                    nomeArquivo: nome,
+                    idPastaDrive: pasta || null
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || 'Erro desconhecido na API');
+            }
+
+            showStatus(`✅ Arquivo salvo com sucesso! <a href="${result.link}" target="_blank" style="color:#166534; font-weight:bold;">Abrir no Google Drive ↗</a>`, 'success');
+
+            document.getElementById('aiReasoning').innerText = result.raciocinio || 'N/A';
+            document.getElementById('aiAnswer').innerText = result.resposta || 'N/A';
+            document.getElementById('aiOutput').style.display = 'block';
+
+        } catch (error) {
+            console.error(error);
+            showStatus(`❌ Falha: ${error.message}. <br><small>Certifique-se de que o backend.py está rodando (python backend.py).</small>`, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = '🚀 Processar com IA e salvar no Google Drive';
+        }
+    }
+</script>
+
+</body>
+</html>

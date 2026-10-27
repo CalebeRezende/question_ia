@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: qwen-ocr-drive-backend
+    runtime: python
+    rootDir: qwen-ocr-drive
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn backend:app
+    envVars:
+      - key: DASHSCOPE_API_KEY
+        sync: false
+      - key: DASHSCOPE_BASE_URL
+        value: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+      - key: QWEN_MODEL
+        value: qwen-max-latest
+      - key: QWEN_VL_MODEL
+        value: qwen-vl-ocr
+      - key: ALLOWED_ORIGINS
+        value: https://caleberezende.github.io
+      - key: GOOGLE_TOKEN_JSON
+        sync: false
+      - key: GOOGLE_CREDENTIALS_JSON
+        sync: false
